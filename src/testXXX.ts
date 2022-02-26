@@ -1,24 +1,84 @@
-import {Sequelize, Model, DataTypes} from "sequelize";
+import {
+    Association,
+    DataTypes,
+    HasManyAddAssociationMixin,
+    HasManyCountAssociationsMixin,
+    HasManyCreateAssociationMixin,
+    HasManyGetAssociationsMixin,
+    HasManyHasAssociationMixin,
+    HasManySetAssociationsMixin,
+    HasManyAddAssociationsMixin,
+    HasManyHasAssociationsMixin,
+    HasManyRemoveAssociationMixin,
+    HasManyRemoveAssociationsMixin,
+    Model,
+    ModelDefined,
+    Optional,
+    Sequelize,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    NonAttribute
+} from "sequelize";
+
+
+import {HasOneGetAssociationMixin, HasOneSetAssociationMixin} from "sequelize";
 const sequelize = new Sequelize("sqlite:elevator-system.db");
 
-class Group extends Model {} Group.init({
-    name: DataTypes.STRING
-}, {sequelize, modelName: "group"});
 
-class User extends Model {
-    declare username : string;
-    declare birthday : Date;
-    declare group : Group;
-    declare getGroup : () => Group;
-    declare setGroup : (g : Group) => void;
+class Elevator extends Model < InferAttributes < Elevator >,
+InferCreationAttributes < Elevator >> {
+    declare aaa : string;
+    declare doorStatus : "open" | "close";
     // i can has api
     public foo() {
         console.log("youre a foo");
     }
-} User.init({
+
+}
+Elevator.init({
+    aaa: DataTypes.STRING,
+    doorStatus: DataTypes.STRING
+}, {sequelize, tableName: "elevator"});
+
+// 'projects' is excluded as it's not an attribute, it's an association.
+class User extends Model < InferAttributes < User, {
+    omit : "group"
+} >,
+InferCreationAttributes < User, {omit: "group"} >> {
+    declare username: string;
+    declare birthday: Date;
+
+    // Since TS cannot determine model association at compile time
+    // we have to declare them here purely virtually
+    // these will not exist until `Model.init` was called.
+    declare getGroup: HasOneGetAssociationMixin < Group >;
+    declare setGroup: HasOneSetAssociationMixin < Group,
+    number >;
+    declare group: NonAttribute < Group >;
+
+    declare static associations: {
+        group: Association < User,
+        Group >;
+    };
+
+    // i can has api
+    public foo() {
+        console.log("youre a foo");
+    }
+
+}
+// XXX
+
+
+User.init({
     username: DataTypes.STRING,
     birthday: DataTypes.DATE
 }, {sequelize, modelName: "user"});
+
+class Group extends Model {} Group.init({
+    name: DataTypes.STRING
+}, {sequelize, modelName: "group"});
 
 
 User.belongsTo(Group);
