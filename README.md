@@ -1,28 +1,32 @@
-# Virbela Coding Test #
+# Intro
 
-Welcome. We've created this test to gain insights into your development skills. Please follow the instructions below.
+XXX TODO
 
-### Test overview ###
+# Features
 
-In this test you'll be asked to complete one or more exercises. When completed you'll push this repo to a public repository for evaluation. After evaluation, your contact at Virbela will reach out to you with next steps.
+XXX TODO
 
-Feel free to use whatever resources you'd typically use when doing development work at a job. Internet searches, books, etc. are all acceptable sources. Your friend, internet coder for hire, or an already completed test are not.
+# How to run
 
-### Instructions ###
+Set up a docker environment.
 
-* Clone this repository to your development machine.
-* Navigate to the exercise you've been instructed to complete for detailed instructions.
+## Production
 
-**Once you have completed your exercise:**
+* This was designed to run on one machine inside a docker engine.
+* run ```docker-compose build``` then ```docker-compose up -d```
+* To rebuild quickly, use ./update.sh
+* Will run api on port 8000
+* To shut down, run ```docker-compose down```
 
-* Commit and push the entire repository, with your completed project, back into a repository host of your choice (bitbucket, github, gitlab, etc)
-* Share your project URL with your Virbela contact (Recruiter or Hiring Manager)
+## Development
 
-### Exercises ###
+* cd src/
+* Run npm install nodemon
+* Run npm install
+* Run ```nodemon main.js```
+* Will run an API server on port 8000, and it will refresh automatically when code changes are made
 
-* [Exercise 1](./Exercise1/EXERCISE_1.md)
-* [Exercise 2](./Exercise2/EXERCISE_2.md)
+# Changelog
 
-### If you have questions ###
+TODO
 
-* Reach out to your Virbela contact (Recruiter or Hiring Manager)
