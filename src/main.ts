@@ -1,11 +1,11 @@
 // seems wierd, but this seems to be the way to typescript+node for these things.
-import {Express} from 'express';
-const express = require('express');
-import {CorsOptions} from 'cors';
-const cors = require('cors')
+import {Express} from "express";
+import express from "express";
+import {CorsOptions} from "cors";
+import cors from "cors";
 
 // XXX probably don't need const fetch = require('node-fetch');
-const util = require('util');
+// XXX import util from "util";
 // XXX const url = util.format(SEARCH_URL, symbol); ... ig thats string formatting???
 
 const app: Express = express();
@@ -17,11 +17,11 @@ const copts: CorsOptions = {
     origin: (origin, callback) => { // allow all
         callback(null, true);
     }
-}
+};
 
 
-app.get('/test', cors(copts), (req, res) => {
-    res.send(JSON.stringify({message: 'your a foo'}));
+app.get("/test", cors(copts), (req, res) => {
+    res.send(JSON.stringify({message: "your a foo"}));
     // XXX const prom = fetch(url).then(response => response.json());
     // use async/await instead!
 });
