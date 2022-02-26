@@ -8,7 +8,6 @@ COPY ./src/ /code/src/
 COPY ./package.json /code/
 COPY ./.eslintrc /code/
 COPY ./tsconfig.json /code/
-COPY ./package-lock.json /code/
 RUN npm install
 RUN npm run build
 
