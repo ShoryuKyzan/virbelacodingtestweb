@@ -4,6 +4,13 @@ import express from "express";
 import {CorsOptions} from "cors";
 import cors from "cors";
 
+import {init} from "./model";
+import { Sequelize } from "sequelize";
+
+// init models
+const sequelize = new Sequelize("sqlite:elevator-system.db");
+init(sequelize);
+
 // XXX probably don't need const fetch = require('node-fetch');
 // XXX import util from "util";
 // XXX const url = util.format(SEARCH_URL, symbol); ... ig thats string formatting???
