@@ -20,10 +20,13 @@ Set up a docker environment.
 
 ## Development
 
-* Run ```npm install -g nodemon ts-node```
-* Run ```npm install```
-* Run ```npm run serve```
-* Will run an API server on port 8000, and it will refresh automatically when code changes are made
+* Running tests: ```npm run test```
+* Running server:
+  * Run ```npm install -g nodemon ts-node```
+  * Run ```npm install```
+  * Run ```npm run serve```
+  * Will run an API server on port 8000, and it will refresh automatically when code changes are made
+
 
 # Changelog
 

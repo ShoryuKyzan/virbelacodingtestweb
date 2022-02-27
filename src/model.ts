@@ -11,7 +11,7 @@ import {
     HasManySetAssociationsMixin,
 } from "sequelize";
 
-class Building extends Model<
+export class Building extends Model<
     InferAttributes<Building>,
     InferCreationAttributes<Building>
 > {
@@ -23,7 +23,7 @@ class Building extends Model<
     declare getElevators: HasManyGetAssociationsMixin<Elevator>;
 }
 
-class Floor extends Model<
+export class Floor extends Model<
     InferAttributes<Floor>,
     InferCreationAttributes<Floor>
 > {
@@ -33,14 +33,14 @@ class Floor extends Model<
     declare setBuilding: HasOneSetAssociationMixin<Building, number>;
 }
 
-enum DoorStatus {
+export enum DoorStatus {
     Open,
     Closed,
 }
-enum ElevatorStatus {
+export enum ElevatorStatus {
     Idle,
 }
-class Elevator extends Model<
+export class Elevator extends Model<
     InferAttributes<Elevator>,
     InferCreationAttributes<Elevator>
 > {
@@ -95,63 +95,3 @@ export const init = (sequelize: Sequelize) => {
     Elevator.belongsToMany(Floor, { through: "FloorElevator" });
     Floor.belongsToMany(Elevator, { through: "FloorElevator" });
 };
-
-async function testXXX() {
-    const sequelize = new Sequelize("sqlite:testModels.db");
-    init(sequelize);
-
-    // TODO there is probably some way to avoid all these awaits until the end. will have to look into that
-
-    try {
-        await sequelize.sync();
-        const b = await Building.create({ name: "DataDyne" });
-        for (let i = 0; i < 101; i++) {
-            const f = await Floor.create({
-                floorNo: i + 1,
-            });
-            await b.addFloor([f]);
-        }
-
-        // set floors for elevators
-
-        const floors = await b.getFloors();
-
-        let e = await Elevator.create({});
-        await b.addElevator([e]);
-        let start = 0;
-        for (let i = 0; i < 15; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-
-        e = await Elevator.create({});
-        await b.addElevator([e]);
-        start = 15;
-        for (let i = 0; i < 15; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-
-        e = await Elevator.create({});
-        await b.addElevator([e]);
-        start = 30;
-        for (let i = 0; i < 15; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-        e = await Elevator.create({});
-        await b.addElevator([e]);
-        start = 45;
-        for (let i = 0; i < 55; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-
-        // print out data
-        console.log(b.toJSON());
-
-        const fs = await b.getFloors();
-        fs.forEach((floor) => {
-            console.log(floor.toJSON());
-        });
-    } catch (e) {
-        console.log(e);
-    }
-}
-testXXX();
