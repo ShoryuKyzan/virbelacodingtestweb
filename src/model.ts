@@ -130,5 +130,7 @@ module.exports = {
     Building,
     Floor,
     Elevator,
+    DoorStatus,
+    ElevatorStatus,
     sequelize
 };
