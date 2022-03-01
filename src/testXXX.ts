@@ -102,6 +102,6 @@
 //     }
 // })();
 
-export const test = (val : number) => {
+export const test = (val: number) => {
     return val;
 };

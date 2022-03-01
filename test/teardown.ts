@@ -1,10 +1,10 @@
 import { unlinkSync } from "fs";
-import { Sequelize } from "sequelize";
+import { getDBFilename } from "../src/env";
+import { sequelize } from "../src/model";
 
 module.exports = async function (_: any, __: any) {
-    const sequelize: Sequelize = (global as any).sequelize;
     await sequelize.sync();
     await sequelize.close();
-    const filename = "testModels.db";
+    const filename = getDBFilename();
     unlinkSync(filename);
 };

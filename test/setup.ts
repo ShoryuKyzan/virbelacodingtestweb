@@ -1,24 +1,16 @@
-import { existsSync, unlinkSync } from "fs";
-import { Sequelize } from "sequelize";
-import { Building, Floor, Elevator, init } from "../src/model";
+import { Building, Floor, Elevator, sequelize } from "../src/model";
 
-module.exports = async function (_: any, __: any) {
+export const setup = async function () {
     /**
      * Initializes a database with the given filename, deleting it first if it exists.
      * Create 1 x 101 floor building, with 4 elevators spanning
-     * 0: 0-15
-     * 1: 15-30
-     * 2: 30-45
+     * 0: 0-14
+     * 1: 0, 15-29
+     * 2: 0, 30-45
      * 3: 45-101
      * 
      * @return sequelize object
     */
-    const filename = "testModels.db";
-    if (existsSync(filename)) {
-        unlinkSync(filename);
-    }
-    const sequelize = new Sequelize("sqlite:" + filename);
-    init(sequelize);
 
     // TODO there is probably some way to avoid all these awaits until the end. will have to look into that
 
@@ -32,31 +24,35 @@ module.exports = async function (_: any, __: any) {
             await b.addFloor([f]);
         }
 
+
         // set floors for elevators
 
         const floors = await b.getFloors();
 
-        let e = await Elevator.create({});
+        let e = await Elevator.create({ elevatorNo: "0" });
         await b.addElevator([e]);
         let start = 0;
         for (let i = 0; i < 15; i++) {
             await e.addFloor(floors[start + i]);
         }
 
-        e = await Elevator.create({});
+        e = await Elevator.create({ elevatorNo: "1" });
         await b.addElevator([e]);
         start = 15;
+        await e.addFloor(floors[0]);
         for (let i = 0; i < 15; i++) {
             await e.addFloor(floors[start + i]);
         }
 
-        e = await Elevator.create({});
+        e = await Elevator.create({ elevatorNo: "2" });
         await b.addElevator([e]);
         start = 30;
-        for (let i = 0; i < 15; i++) {
+        await e.addFloor(floors[0]);
+        for (let i = 0; i < 16; i++) {
             await e.addFloor(floors[start + i]);
         }
-        e = await Elevator.create({});
+
+        e = await Elevator.create({ elevatorNo: "3" });
         await b.addElevator([e]);
         start = 45;
         for (let i = 0; i < 55; i++) {
@@ -64,15 +60,17 @@ module.exports = async function (_: any, __: any) {
         }
 
         // print out data
-        console.log(b.toJSON());
+        // console.log(b.toJSON());
 
-        const fs = await b.getFloors();
-        fs.forEach((floor) => {
-            console.log(floor.toJSON());
-        });
-        (global as any).sequelize = sequelize;
+        // const fs = await b.getFloors();
+        // fs.forEach((floor) => {
+        //     console.log(floor.toJSON());
+        // });
+        // const b3 = await Building.findOne({ where: { name: "DataDyne" } }); // XXX
+        // console.log(b3.toJSON()); // XXX
+        await sequelize.sync();
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 
 };

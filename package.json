@@ -14,7 +14,7 @@
     "serve": "nodemon src/main.ts",
     "start": "docker-compose build && docker-compose up -d",
     "stop": "docker-compose down",
-    "test": "jest"
+    "test": "cross-env NODE_ENV=test jest"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -32,6 +32,7 @@
     "@types/validator": "^13.7.1",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
+    "cross-env": "^7.0.3",
     "eslint": "^8.10.0",
     "jest": "^27.5.1",
     "nodemon": "^2.0.15",

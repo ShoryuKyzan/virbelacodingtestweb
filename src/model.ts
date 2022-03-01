@@ -9,13 +9,17 @@ import {
     HasOneGetAssociationMixin,
     HasOneSetAssociationMixin,
     HasManySetAssociationsMixin,
+    CreationOptional,
 } from "sequelize";
+import { getDBFilename } from "./env";
 
 export class Building extends Model<
     InferAttributes<Building>,
     InferCreationAttributes<Building>
 > {
+    declare id: CreationOptional<number>;
     declare name: string;
+
 
     declare addFloor: HasManySetAssociationsMixin<Floor, number>;
     declare addElevator: HasManySetAssociationsMixin<Elevator, number>;
@@ -27,6 +31,7 @@ export class Floor extends Model<
     InferAttributes<Floor>,
     InferCreationAttributes<Floor>
 > {
+    declare id: CreationOptional<number>;
     declare floorNo: number;
 
     declare getBuilding: HasOneGetAssociationMixin<Building>;
@@ -44,8 +49,11 @@ export class Elevator extends Model<
     InferAttributes<Elevator>,
     InferCreationAttributes<Elevator>
 > {
+    declare id: CreationOptional<number>;
+    declare buildingId: CreationOptional<number>;
     declare status: ElevatorStatus;
     declare doorStatus: DoorStatus;
+    declare elevatorNo: string;
 
     // Since TS cannot determine model association at compile time
     // we have to declare them here purely virtually
@@ -56,42 +64,71 @@ export class Elevator extends Model<
     declare getFloors: HasManyGetAssociationsMixin<Floor>;
     declare addFloor: HasManyAddAssociationMixin<Floor, number>;
 
-    // i can has api
-    public foo() {
-        console.log("youre a foo");
+    public openDoor() {
+        this.doorStatus = DoorStatus.Open;
+    }
+    public closeDoor() {
+        this.doorStatus = DoorStatus.Closed;
     }
 }
 
-export const init = (sequelize: Sequelize) => {
-    Building.init(
-        {
-            name: DataTypes.INTEGER,
+
+// environment based filename
+const filename = getDBFilename();
+export const sequelize = new Sequelize("sqlite:" + filename, null, null, { logging: false, dialect: "sqlite", storage: filename });
+
+Building.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
         },
-        { sequelize, modelName: "building" }
-    );
-    Floor.init(
-        {
-            floorNo: DataTypes.INTEGER,
+        name: DataTypes.INTEGER,
+    },
+    { sequelize, modelName: "building" }
+);
+Floor.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
         },
-        { sequelize, modelName: "floor" }
-    );
-    Elevator.init(
-        {
-            status: {
-                type: DataTypes.INTEGER,
-                defaultValue: ElevatorStatus.Idle,
-            },
-            doorStatus: {
-                type: DataTypes.INTEGER,
-                defaultValue: DoorStatus.Closed,
-            },
+        floorNo: DataTypes.INTEGER,
+    },
+    { sequelize, modelName: "floor" }
+);
+Elevator.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
         },
-        { sequelize, tableName: "elevator" }
-    );
-    Building.hasMany(Floor);
-    Building.hasMany(Elevator);
-    Floor.belongsTo(Building);
-    Elevator.belongsTo(Building);
-    Elevator.belongsToMany(Floor, { through: "FloorElevator" });
-    Floor.belongsToMany(Elevator, { through: "FloorElevator" });
+        buildingId: DataTypes.INTEGER,
+        status: {
+            type: DataTypes.INTEGER,
+            defaultValue: ElevatorStatus.Idle,
+        },
+        doorStatus: {
+            type: DataTypes.INTEGER,
+            defaultValue: DoorStatus.Closed,
+        },
+        elevatorNo: DataTypes.STRING
+    },
+    { sequelize, tableName: "elevator" }
+);
+Building.hasMany(Floor);
+Building.hasMany(Elevator);
+Floor.belongsTo(Building);
+Elevator.belongsTo(Building);
+Elevator.belongsToMany(Floor, { through: "FloorElevator" });
+Floor.belongsToMany(Elevator, { through: "FloorElevator" });
+
+module.exports = {
+    Building,
+    Floor,
+    Elevator,
+    sequelize
 };
