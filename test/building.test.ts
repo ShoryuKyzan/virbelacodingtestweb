@@ -31,28 +31,17 @@ test("get buildings", async () => {
     // expect(response.statusCode).toBe(200);
     // expect(actualBody).toStrictEqual(expectedBody);
 });
-// test("get elevators", async () => {
-//     const response = await request(app).get("/elevator");
+test("get building elevators", async () => {
+    const response = await request(app).get("/building/DataDyne/elevator");
 
-//     const actualBody = JSON.parse(response.text);
-//     console.log("elevators", response.body); // XXX
-//     // const expectedBody = { status: Status.Success, elevator: {} }; // TODO fill this in
-//     // expectedBody.id = actualBody.id; // id doesnt matter
+    const actualBody = JSON.parse(response.text);
+    console.log("elevators", response.body); // XXX
+    // const expectedBody = { status: Status.Success, elevator: {} }; // TODO fill this in
+    // expectedBody.id = actualBody.id; // id doesnt matter
 
-//     // expect(response.statusCode).toBe(200);
-//     // expect(actualBody).toStrictEqual(expectedBody);
-// });
-// test("get building elevators", async () => {
-//     const response = await request(app).get("/building/DataDyne/elevator");
-
-//     const actualBody = JSON.parse(response.body);
-//     console.log("elevators", response.body); // XXX
-//     // const expectedBody = { status: Status.Success, elevator: {} }; // TODO fill this in
-//     // expectedBody.id = actualBody.id; // id doesnt matter
-
-//     // expect(response.statusCode).toBe(200);
-//     // expect(actualBody).toStrictEqual(expectedBody);
-// });
+    // expect(response.statusCode).toBe(200);
+    // expect(actualBody).toStrictEqual(expectedBody);
+});
 
 // test("openDoor", async () => {
 //     const response = await request(app).get("/building/DataDyne/elevator/2/openDoor");
