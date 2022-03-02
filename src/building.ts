@@ -16,10 +16,10 @@ buildingRouter.get("/", cors(copts), async (req, res) => {
 });
 
 
-// buildingRouter.get("/:buildingName", cors(copts), async (req, res) => {
-//     const building = await Building.findOne({ where: { name: req.params["buildingName"] } });
-//     res.send(JSON.stringify({ status: Status.Success, building }));
-// });
+buildingRouter.get("/:buildingName", cors(copts), async (req, res) => {
+    const building = await Building.findOne({ where: { name: req.params["buildingName"] } });
+    res.send(JSON.stringify({ status: Status.Success, building }));
+});
 // buildingRouter.delete("/:buildingName", cors(copts), async (req, res) => {
 //     const building = await Building.findOne({ where: { name: req.params["buildingName"] } });
 //     await building.destroy();

@@ -4,6 +4,8 @@ module.exports = {
       tsconfig: "tsconfig.json",
     },
   },
+  globalSetup: "./test/setup.ts",
+  globalTeardown: "./test/teardown.ts",
   moduleFileExtensions: ["ts", "js"],
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",

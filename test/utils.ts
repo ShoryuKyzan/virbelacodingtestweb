@@ -1,5 +1,5 @@
 import { Building, Floor, Elevator, sequelize } from "../src/model";
-import { unlinkSync } from "fs";
+import { existsSync, unlinkSync } from "fs";
 import { getDBFilename } from "../src/env";
 import { Output } from "test-console";
 
@@ -15,8 +15,12 @@ export const setup = async function () {
      * @return sequelize object
     */
 
-    // TODO there is probably some way to avoid all these awaits until the end. will have to look into that
+    const filename = getDBFilename();
+    if (existsSync(filename)) {
+        unlinkSync(filename);
+    }
 
+    // TODO there is probably some way to avoid all these awaits until the end. will have to look into that
     try {
         await sequelize.sync();
         const b = await Building.create({ name: "DataDyne" });
