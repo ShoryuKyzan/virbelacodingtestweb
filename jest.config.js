@@ -4,7 +4,6 @@ module.exports = {
       tsconfig: "tsconfig.json",
     },
   },
-  globalTeardown: "./test/teardown.ts",
   moduleFileExtensions: ["ts", "js"],
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",

@@ -1,7 +1,7 @@
+import { log } from "./logging";
 import { Building, Elevator } from "./model";
 
 export const getElevator = async (building: string, elevatorNo: string): Promise<Elevator> => {
-    const b2 = await Building.findOne(); // XXX
     const b = (await Building.findOne({
         where: {
             name: building
@@ -19,10 +19,12 @@ export const openDoor = async (building: string, elevatorNo: string) => {
     const e = await getElevator(building, elevatorNo);
     e.openDoor();
     await e.save();
+    log(`${building} elevator ${elevatorNo} door opened`);
 };
 
 export const closeDoor = async (building: string, elevatorNo: string) => {
     const e = await getElevator(building, elevatorNo);
     e.closeDoor();
     await e.save();
+    log(`${building} elevator ${elevatorNo} door closed`);
 };

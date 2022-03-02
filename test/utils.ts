@@ -1,4 +1,7 @@
 import { Building, Floor, Elevator, sequelize } from "../src/model";
+import { unlinkSync } from "fs";
+import { getDBFilename } from "../src/env";
+import { Output } from "test-console";
 
 export const setup = async function () {
     /**
@@ -72,5 +75,41 @@ export const setup = async function () {
     } catch (e) {
         console.error(e);
     }
+
+};
+
+
+export const teardown = async () => {
+    await sequelize.sync();
+    await sequelize.close();
+    const filename = getDBFilename();
+    unlinkSync(filename);
+};
+
+export const filterLogs = (output: Output, afterTimestamp: number): string[] => {
+    /**
+     * Filters the output to just log messages after the current timestamp.
+     * 
+     * @param output - string[] - array of strings that is the output data
+     * @param afterTimestamp - number - start scanning messages after unix timestamp
+     * 
+     * @return string[] - filtered output
+     */
+
+    const fullOutputLines = output.join("").split("\n");
+
+    const filter = /^\s*INFO:\s+([0-9]+)\s*(.*)\s*$/;
+
+    const ret: string[] = [];
+    fullOutputLines.forEach((line) => {
+        const matches = line.match(filter);
+        if (matches && matches.length >= 1) {
+            const timestamp = parseInt(matches[1], 10);
+            if (timestamp >= afterTimestamp) {
+                ret.push(matches[2]);
+            }
+        }
+    });
+    return ret;
 
 };

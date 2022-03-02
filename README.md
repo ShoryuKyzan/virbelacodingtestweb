@@ -22,6 +22,7 @@ Set up a docker environment.
 ## Development
 
 - Running tests: `npm run test`
+  - Sometimes first time the tests time out. Not sure why yet. (fixme)
 - Running server:
   - Run `npm install -g nodemon ts-node cross-env`
   - Run `npm install`
