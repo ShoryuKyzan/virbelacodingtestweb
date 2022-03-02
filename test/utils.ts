@@ -113,3 +113,29 @@ export const filterLogs = (output: Output, afterTimestamp: number): string[] => 
     return ret;
 
 };
+
+export const cleanupRecords = (records: any, keysToClean: string[] = ["createdAt", "updatedAt", "id"]) => {
+    /**
+     * Cleans up sequelize records, removing id and other fields by default. This allows test to be agnostic to when the data was created.
+     */
+    // lots of any's here because its meant to sanitize many things
+    let inputRecords: any = records;
+    let returnSingle = false;
+    if (!Array.isArray(records)) {
+        inputRecords = [records];
+        returnSingle = true;
+    }
+    (inputRecords as object[]).forEach((record: any) => {
+        keysToClean.forEach((key) => {
+            if (key in record) {
+                record[key] = "";
+            }
+        });
+    });
+    if (returnSingle) {
+        return inputRecords[0];
+    } else {
+        return inputRecords;
+    }
+};
+

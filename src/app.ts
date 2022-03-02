@@ -1,19 +1,25 @@
-import express, { Express } from "express";
-import { CorsOptions } from "cors";
-import cors from "cors";
+import express, { Request, Response, Express, NextFunction } from "express";
+import { buildingRouter } from "./building";
+import { floorRouter } from "./floor";
+import { elevatorRouter } from "./elevator";
+import { logAndSendError } from "./logging";
+import Router from "express-promise-router";
+const router = Router();
 
 export const app: Express = express();
 
 
-/* holdover from another project, makes it easy to do this in frontend stuff */
-const copts: CorsOptions = {
-    origin: (origin, callback) => { // allow all
-        callback(null, true);
-    }
-};
+export enum Status {
+    Success = "success",
+    Failure = "failure"
+}
 
-app.get("/test", cors(copts), (req, res) => {
-    res.send(JSON.stringify({ message: "your a foo" }));
-    // XXX const prom = fetch(url).then(response => response.json());
-    // use async/await instead!
+// I know there are probably route ways of doing this... better ways etc.
+
+router.use("/building", buildingRouter);
+// router.use("/elevator", elevatorRouter);
+// router.use("/floor", floorRouter);
+router.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    logAndSendError(err, res);
 });
+app.use(router);
