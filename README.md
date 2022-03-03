@@ -1,6 +1,7 @@
 # Intro
 
 Node.js express API + database + automated tests for a coding test.
+
 # Features
 
 Elevators, buildings, floors have full CRUD interface. Elevators and floors must be created on their associated buildings, though.
@@ -10,6 +11,7 @@ Fully automated testing.
 # How to run
 
 Set up a docker environment.
+PUT and POST requests require "Content-Type: application/json" header present or it will not parse correctly.
 
 ## Production
 
