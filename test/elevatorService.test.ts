@@ -33,6 +33,7 @@ test("openDoor", async () => {
 
     // set back to closed
     await closeDoor(buildingName, elevatorNo);
+    await sequelize.sync();
 });
 
 test("closeDoor", async () => {
@@ -62,6 +63,9 @@ test("closeDoor", async () => {
     console.log("doorstatus closed", DoorStatus.Closed);
     console.log("Elevator doorstatus", e.doorStatus, e.toJSON());
     expect(e.doorStatus).toBe(DoorStatus.Closed);
+    // set back to closed just in case
+    await closeDoor(buildingName, elevatorNo);
+    await sequelize.sync();
 });
 
 test("getElevator", async () => {
