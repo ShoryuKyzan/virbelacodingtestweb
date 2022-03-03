@@ -32,7 +32,9 @@ export class Floor extends Model<
     InferCreationAttributes<Floor>
 > {
     declare id: CreationOptional<number>;
+    declare buildingId: CreationOptional<number>;
     declare floorNo: number;
+
 
     declare getBuilding: HasOneGetAssociationMixin<Building>;
     declare setBuilding: HasOneSetAssociationMixin<Building, number>;
@@ -51,8 +53,8 @@ export class Elevator extends Model<
 > {
     declare id: CreationOptional<number>;
     declare buildingId: CreationOptional<number>;
-    declare status: ElevatorStatus;
-    declare doorStatus: DoorStatus;
+    declare status: CreationOptional<ElevatorStatus>;
+    declare doorStatus: CreationOptional<DoorStatus>;
     declare elevatorNo: string;
 
     // Since TS cannot determine model association at compile time
@@ -96,6 +98,7 @@ Floor.init(
             primaryKey: true
         },
         floorNo: DataTypes.INTEGER,
+        buildingId: DataTypes.INTEGER
     },
     { sequelize, modelName: "floor" }
 );

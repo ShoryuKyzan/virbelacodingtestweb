@@ -96,7 +96,13 @@ export const teardown = async () => {
     // unlinkSync(filename);
 };
 
-export const cleanupRecords = (records: any, keysToClean: string[] = ["createdAt", "updatedAt", "id"]) => {
+
+export const CleanupRecordKeys = {
+    Dates: ["createdAt", "updatedAt"],
+    All: ["id", "createdAt", "updatedAt"]
+};
+
+export const cleanupRecords = (records: any, keysToClean: string[] = CleanupRecordKeys.All) => {
     /**
      * Cleans up sequelize records, removing id and other fields by default. This allows test to be agnostic to when the data was created.
      */
