@@ -1,5 +1,6 @@
 import { openDoor, closeDoor, getElevator } from "../src/elevatorService";
 import { DoorStatus } from "../src/model";
+import { cleanupRecords } from "./utils";
 
 
 test("openDoor", async () => {
@@ -59,3 +60,16 @@ test("closeDoor", async () => {
     console.log("Elevator doorstatus", e.doorStatus, e.toJSON());
     expect(e.doorStatus).toBe(DoorStatus.Closed);
 });
+
+test("getElevator", async () => {
+    const buildingName = "DataDyne";
+    const elevatorName = "2";
+
+    const expectedElevator = cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "2", "createdAt": "2022-03-02T21:56:15.349Z", "updatedAt": "2022-03-02T21:56:17.253Z" });
+    let e = await getElevator(buildingName, elevatorName);
+    console.log(e.toJSON()); // XXX
+    e = cleanupRecords(e.toJSON());
+    console.log("expected, actual: ", expectedElevator, e);
+    expect(e).toStrictEqual(expectedElevator);
+});
+
