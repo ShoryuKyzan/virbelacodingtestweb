@@ -1,7 +1,6 @@
 import { Building, Floor, Elevator, sequelize } from "../src/model";
 import { existsSync, unlinkSync } from "fs";
 import { getDBFilename } from "../src/env";
-import { Output } from "test-console";
 
 export const setup = async function () {
     /**
@@ -85,37 +84,16 @@ export const setup = async function () {
 
 export const teardown = async () => {
     await sequelize.sync();
+
+    // workaround, it wont let you delete it unless u do this
+    // workaround is not working!
+    // const queryInterface: any = sequelize.getQueryInterface();
+    // await queryInterface.sequelize.connectionManager.connections.default.close(); // manually close the sqlite connection which sequelize.close() omits
     await sequelize.close();
-    const filename = getDBFilename();
-    unlinkSync(filename);
-};
 
-export const filterLogs = (output: Output, afterTimestamp: number): string[] => {
-    /**
-     * Filters the output to just log messages after the current timestamp.
-     * 
-     * @param output - string[] - array of strings that is the output data
-     * @param afterTimestamp - number - start scanning messages after unix timestamp
-     * 
-     * @return string[] - filtered output
-     */
-
-    const fullOutputLines = output.join("").split("\n");
-
-    const filter = /^\s*INFO:\s+([0-9]+)\s*(.*)\s*$/;
-
-    const ret: string[] = [];
-    fullOutputLines.forEach((line) => {
-        const matches = line.match(filter);
-        if (matches && matches.length >= 1) {
-            const timestamp = parseInt(matches[1], 10);
-            if (timestamp >= afterTimestamp) {
-                ret.push(matches[2]);
-            }
-        }
-    });
-    return ret;
-
+    // this wont work because the db is still holding a connection, not worth it to fix rn, it is always deleted on startup anyways.
+    // const filename = getDBFilename();
+    // unlinkSync(filename);
 };
 
 export const cleanupRecords = (records: any, keysToClean: string[] = ["createdAt", "updatedAt", "id"]) => {
