@@ -1,4 +1,4 @@
-import { openDoor, closeDoor, getElevator } from "../src/elevatorService";
+import { openDoor, closeDoor, getElevator, createElevator, createFloor, getFloor } from "../src/elevatorService";
 import { DoorStatus } from "../src/model";
 import { cleanupRecords } from "./utils";
 
@@ -6,15 +6,15 @@ import { cleanupRecords } from "./utils";
 test("openDoor", async () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
     const buildingName = "DataDyne";
-    const elevatorName = "2";
+    const elevatorNo = "2";
     const expectedLogs = [
         "DataDyne elevator 2 door closed",
         "DataDyne elevator 2 door opened"
     ];
 
     // open elevator #2 door
-    await closeDoor(buildingName, elevatorName);
-    await openDoor(buildingName, elevatorName);
+    await closeDoor(buildingName, elevatorNo);
+    await openDoor(buildingName, elevatorNo);
 
     // record results and restore console logging
     const consoleLogs = consoleSpy.mock.calls;
@@ -26,7 +26,7 @@ test("openDoor", async () => {
     expect(consoleLogs[0][0]).toContain(expectedLogs[0]);
     expect(consoleLogs[1][0]).toContain(expectedLogs[1]);
 
-    const e = await getElevator(buildingName, elevatorName);
+    const e = await getElevator(buildingName, elevatorNo);
     console.log("doorstatus open", DoorStatus.Open);
     console.log("Elevator doorstatus", e.doorStatus, e.toJSON());
     expect(e.doorStatus).toBe(DoorStatus.Open);
@@ -35,15 +35,15 @@ test("openDoor", async () => {
 test("closeDoor", async () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
     const buildingName = "DataDyne";
-    const elevatorName = "2";
+    const elevatorNo = "2";
     const expectedLogs = [
         "DataDyne elevator 2 door opened",
         "DataDyne elevator 2 door closed"
     ];
 
     // open elevator #2 door
-    await openDoor(buildingName, elevatorName);
-    await closeDoor(buildingName, elevatorName);
+    await openDoor(buildingName, elevatorNo);
+    await closeDoor(buildingName, elevatorNo);
 
     // record results and restore console logging
     const consoleLogs = consoleSpy.mock.calls;
@@ -55,7 +55,7 @@ test("closeDoor", async () => {
     expect(consoleLogs[0][0]).toContain(expectedLogs[0]);
     expect(consoleLogs[1][0]).toContain(expectedLogs[1]);
 
-    const e = await getElevator(buildingName, elevatorName);
+    const e = await getElevator(buildingName, elevatorNo);
     console.log("doorstatus closed", DoorStatus.Closed);
     console.log("Elevator doorstatus", e.doorStatus, e.toJSON());
     expect(e.doorStatus).toBe(DoorStatus.Closed);
@@ -63,13 +63,41 @@ test("closeDoor", async () => {
 
 test("getElevator", async () => {
     const buildingName = "DataDyne";
-    const elevatorName = "2";
+    const elevatorNo = "2";
 
     const expectedElevator = cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "2", "createdAt": "2022-03-02T21:56:15.349Z", "updatedAt": "2022-03-02T21:56:17.253Z" });
-    let e = await getElevator(buildingName, elevatorName);
-    console.log(e.toJSON()); // XXX
+    let e = await getElevator(buildingName, elevatorNo);
     e = cleanupRecords(e.toJSON());
     console.log("expected, actual: ", expectedElevator, e);
     expect(e).toStrictEqual(expectedElevator);
 });
+
+
+test("createElevator", async () => {
+    const buildingName = "DataDyne";
+    const elevatorNo = "4";
+
+    const expectedElevator = cleanupRecords({ "id": "", "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "4", "createdAt": "", "updatedAt": "" });
+    await createElevator(buildingName, elevatorNo);
+
+    let e = await getElevator(buildingName, elevatorNo);
+    e = cleanupRecords(e.toJSON());
+    console.log("expected, actual: ", expectedElevator, e);
+    expect(e).toStrictEqual(expectedElevator);
+});
+
+
+test("createFloor", async () => {
+    const buildingName = "DataDyne";
+    const floorNo = 102;
+
+    const expectedFloor = cleanupRecords({ "id": "", "floorNo": 102, "buildingId": 1, "createdAt": "", "updatedAt": "" });
+    await createFloor(buildingName, floorNo);
+
+    let f = await getFloor(buildingName, floorNo);
+    f = cleanupRecords(f.toJSON());
+    console.log("expected, actual: ", expectedFloor, f);
+    expect(f).toStrictEqual(expectedFloor);
+});
+
 
