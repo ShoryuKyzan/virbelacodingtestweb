@@ -33,7 +33,6 @@ test("openDoor", async () => {
 
     // set back to closed
     await closeDoor(buildingName, elevatorNo);
-    await sequelize.sync();
 });
 
 test("closeDoor", async () => {
@@ -65,7 +64,6 @@ test("closeDoor", async () => {
     expect(e.doorStatus).toBe(DoorStatus.Closed);
     // set back to closed just in case
     await closeDoor(buildingName, elevatorNo);
-    await sequelize.sync();
 });
 
 test("getElevator", async () => {
@@ -101,7 +99,6 @@ test("createElevator", async () => {
     expect(elevatorObj).toStrictEqual(expectedElevator);
     // delete elevator after
     await e.destroy();
-    await sequelize.sync();
 });
 
 
@@ -118,7 +115,6 @@ test("createFloor", async () => {
     expect(floorObj).toStrictEqual(expectedFloor);
     // delete after
     await f.destroy();
-    await sequelize.sync();
 });
 
 

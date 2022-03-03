@@ -1,7 +1,7 @@
 import request from "supertest";
 import { app, Status } from "../src/app";
 import { createBuilding } from "../src/buildingService";
-import { Elevator, Floor } from "../src/model";
+import { Elevator, Floor, sequelize } from "../src/model";
 import { CleanupRecordKeys, cleanupRecords } from "./utils";
 
 test("get elevators", async () => {
@@ -58,7 +58,7 @@ test("delete elevator", async () => {
 test("update elevator", async () => {
 
     // create building to delete
-    const buildingName = "Carrington Institute";
+    const buildingName = "Area 51 Underground";
     const b = await createBuilding(buildingName);
     const e1 = await Elevator.create({ elevatorNo: "0" });
     const e2 = await Elevator.create({ elevatorNo: "1" });
@@ -81,7 +81,7 @@ test("update elevator", async () => {
         "status": Status.Success,
         "elevator": {
             "id": "",
-            "buildingId": 2,
+            "buildingId": b.id,
             "status": 0,
             "doorStatus": 1,
             "elevatorNo": "4",

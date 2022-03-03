@@ -1,5 +1,7 @@
 import request from "supertest";
 import { app, Status } from "../src/app";
+import { createBuilding } from "../src/buildingService";
+import { Floor, sequelize } from "../src/model";
 import { CleanupRecordKeys, cleanupRecords } from "./utils";
 
 test("get floors", async () => {
@@ -33,6 +35,60 @@ test("get floor by id", async () => {
     console.log("expected, actual: ", expectedBody, actualBody);
     expect(actualBody).toStrictEqual(expectedBody);
 });
+
+test("update floor", async () => {
+
+    const buildingName = "Carrington Villa";
+    const b = await createBuilding(buildingName);
+    const f1 = await Floor.create({ floorNo: 0 });
+    const f2 = await Floor.create({ floorNo: 1 });
+    const f3 = await Floor.create({ floorNo: 2 });
+    const f4 = await Floor.create({ floorNo: 3 });
+    b.addFloor([f1,
+        f2,
+        f3,
+        f4]);
+
+    // fail
+    let response = await request(app).post(`/floor/${f4.id}`).send({ floorNo: 2 });
+    expect(response.status).toBe(500);
+
+    // success
+    response = await request(app).post(`/floor/${f4.id}`).send({ floorNo: 5 });
+    const actualBody = JSON.parse(response.text);
+
+    const expectedFloor = {
+        "id": f4.id,
+        "floorNo": 5,
+        "buildingId": b.id,
+        "createdAt": "",
+        "updatedAt": ""
+    };
+    const expectedBody = { "status": Status.Success, "floor": expectedFloor };
+
+    actualBody.floor = cleanupRecords(actualBody.floor, CleanupRecordKeys.Dates);
+    console.log("expected, actual: ", expectedBody, actualBody);
+    expect(actualBody).toStrictEqual(expectedBody);
+
+    await b.destroy();
+});
+
+test("delete elevator", async () => {
+    const f = await Floor.create({ floorNo: 1 }); // no associated building which is fine
+    const oldId = f.id;
+    const response = await request(app).delete(`/floor/${f.id}`);
+
+    const actualBody = JSON.parse(response.text);
+    const expectedBody = { "status": Status.Success };
+
+    console.log("expected, actual: ", expectedBody, actualBody);
+    expect(actualBody).toStrictEqual(expectedBody);
+
+    // ensure deleted
+    const fs = await Floor.findAll({ where: { id: oldId } });
+    expect(fs.length).toBe(0);
+});
+
 
 const allFloors = [
     {

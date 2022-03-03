@@ -58,7 +58,7 @@ buildingRouter.delete("/:buildingName", cors(copts), async (req, res) => {
 //     res.send(JSON.stringify({ status: Status.Success, building, elevators }));
 // });
 
-// buildingRouter.post("/:buildingName/elevator", cors(copts), async (req, res) => {
+// buildingRouter.put("/:buildingName/elevator", cors(copts), async (req, res) => {
 //     const newElevator: {
 //         elevatorNo: string
 //     } = JSON.parse(req.body);

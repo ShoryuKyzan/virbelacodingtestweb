@@ -72,7 +72,7 @@ test("get building", async () => {
 
 
 test("create building", async () => {
-    const buildingName = "Carrington Institute";
+    const buildingName = "G5 Building";
     const response = await request(app).put(`/building/${buildingName}`);
     const actualBody = JSON.parse(response.text);
 
@@ -90,12 +90,11 @@ test("create building", async () => {
 
     // cleanup
     await buildings[0].destroy();
-    await sequelize.sync();
 });
 
 test("delete building", async () => {
     // create building to delete
-    const buildingName = "Carrington Institute";
+    const buildingName = "Skedar Ruins";
     const b = await createBuilding(buildingName);
     const e1 = await Elevator.create({ elevatorNo: "0" });
     const e2 = await Elevator.create({ elevatorNo: "1" });
@@ -105,15 +104,14 @@ test("delete building", async () => {
     const f2 = await Floor.create({ floorNo: 1 });
     const f3 = await Floor.create({ floorNo: 2 });
     const f4 = await Floor.create({ floorNo: 3 });
-    b.addElevator([e1,
+    await b.addElevator([e1,
         e2,
         e3,
         e4]);
-    b.addFloor([f1,
+    await b.addFloor([f1,
         f2,
         f3,
         f4]);
-    sequelize.sync();
 
     const oldBuildingId = b.id;
 
@@ -139,7 +137,6 @@ test("update building", async () => {
     // create building to delete
     const buildingName = "Carrington Institute";
     await Building.create({ name: buildingName });
-    sequelize.sync();
 
     // ensure created
     let buildings = await Building.findAll({ where: { name: buildingName } });
@@ -166,7 +163,5 @@ test("update building", async () => {
 
     // cleanup
     await buildings[0].destroy();
-    await sequelize.sync();
-
 
 });
