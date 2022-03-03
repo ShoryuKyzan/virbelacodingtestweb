@@ -5,7 +5,8 @@ import { copts } from "./cors";
 import { Building, Elevator, Floor } from "./model";
 import { Status } from "./app";
 import { closeDoor, createElevator, createFloor, getElevator, openDoor } from "./elevatorService";
-import { createBuilding } from "./buildingService";
+import { createBuilding, createBuildingElevator, createBuildingFloor, getBuildingElevators, getBuildingFloors } from "./buildingService";
+import { AlreadyExistsError } from "./service";
 
 export const buildingRouter = Router();
 
@@ -14,6 +15,11 @@ export const buildingRouter = Router();
 buildingRouter.get("/", cors(copts), async (req, res) => {
     const buildings = await Building.findAll();
     res.send(JSON.stringify({ status: Status.Success, buildings }));
+});
+
+buildingRouter.get("/:buildingName", cors(copts), async (req, res) => {
+    const building = await Building.findOne({ where: { name: req.params["buildingName"] } });
+    res.send(JSON.stringify({ status: Status.Success, building }));
 });
 
 buildingRouter.put("/:buildingName", cors(copts), async (req, res) => {
@@ -29,18 +35,12 @@ buildingRouter.post("/:buildingName", cors(copts), async (req, res) => {
 
     const existingBuildings = await Building.findAll({ where: { name: newBuildingName } });
     if (existingBuildings.length > 0) {
-        throw new Error(`Building ${newBuildingName} already exists`);
+        throw new AlreadyExistsError(`Building ${newBuildingName} already exists`);
     }
     const building = await Building.findOne({ where: { name: buildingName } });
     building.name = newBuildingName;
     await building.save();
 
-    res.send(JSON.stringify({ status: Status.Success, building }));
-});
-
-
-buildingRouter.get("/:buildingName", cors(copts), async (req, res) => {
-    const building = await Building.findOne({ where: { name: req.params["buildingName"] } });
     res.send(JSON.stringify({ status: Status.Success, building }));
 });
 
@@ -51,6 +51,27 @@ buildingRouter.delete("/:buildingName", cors(copts), async (req, res) => {
     // TODO ensure all owned floors and elevators destroyed
     res.send(JSON.stringify({ status: Status.Success }));
 });
+
+buildingRouter.put("/:buildingName/floor", cors(copts), async (req, res) => {
+    const floor = await createBuildingFloor(req.params["buildingName"], req.body.floorNo);
+    res.send(JSON.stringify({ status: Status.Success, floor }));
+});
+
+buildingRouter.put("/:buildingName/elevator", cors(copts), async (req, res) => {
+    const elevator = await createBuildingElevator(req.params["buildingName"], req.body.elevatorNo);
+    res.send(JSON.stringify({ status: Status.Success, elevator }));
+});
+
+buildingRouter.get("/:buildingName/floor", cors(copts), async (req, res) => {
+    const floors = await getBuildingFloors(req.params["buildingName"]);
+    res.send(JSON.stringify({ status: Status.Success, floors }));
+});
+
+buildingRouter.get("/:buildingName/elevator", cors(copts), async (req, res) => {
+    const elevators = await getBuildingElevators(req.params["buildingName"]);
+    res.send(JSON.stringify({ status: Status.Success, elevators }));
+});
+
 
 // buildingRouter.get("/:buildingName/elevator", cors(copts), async (req, res) => {
 //     const building = await Building.findOne({ where: { name: req.params["buildingName"] } });

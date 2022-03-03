@@ -1,5 +1,6 @@
 import { log } from "./logging";
 import { Building, Elevator, Floor } from "./model";
+import { AlreadyExistsError } from "./service";
 
 export const createElevator = async (buildingName: string, elevatorNo: string): Promise<Elevator> => {
     const building = await Building.findOne({ where: { name: buildingName } });
@@ -10,7 +11,7 @@ export const createElevator = async (buildingName: string, elevatorNo: string): 
         }
     });
     if (conflicts.length > 0) {
-        throw new Error(`Elevator No #${elevatorNo} already exists`);
+        throw new AlreadyExistsError(`Elevator No #${elevatorNo} already exists`);
     }
     const newElevator = await Elevator.create({ elevatorNo });
     await building.addElevator([newElevator]);
@@ -25,7 +26,7 @@ export const createFloor = async (buildingName: string, floorNo: number): Promis
         }
     });
     if (conflicts.length > 0) {
-        throw new Error(`Floor No #${floorNo} already exists`);
+        throw new AlreadyExistsError(`Floor No #${floorNo} already exists`);
     }
     const floor = await Floor.create({ floorNo });
     await building.addFloor([floor]);
@@ -75,3 +76,6 @@ export const closeDoor = async (building: string, elevatorNo: string) => {
     await e.save();
     log(`${building} elevator ${elevatorNo} door closed`);
 };
+
+// getElevator(building, elevatorNo)
+// getFloor(building, floorNo)

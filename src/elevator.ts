@@ -3,6 +3,7 @@ import cors from "cors";
 import { copts } from "./cors";
 import { Elevator } from "./model";
 import { Status } from "./app";
+import { AlreadyExistsError } from "./service";
 
 export const elevatorRouter = Router();
 
@@ -27,7 +28,7 @@ elevatorRouter.post("/:elevatorId", cors(copts), async (req, res) => {
     const elevatorNo = req.body.elevatorNo;
     const existingElevators = await Elevator.findAll({ where: { buildingId: e.buildingId, elevatorNo } });
     if (existingElevators.length > 0) {
-        throw new Error(`Elevator with No ${elevatorNo} already exists in this building`);
+        throw new AlreadyExistsError(`Elevator with No ${elevatorNo} already exists in this building`);
     }
     e.elevatorNo = elevatorNo;
     await e.save();

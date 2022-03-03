@@ -3,6 +3,7 @@ import cors from "cors";
 import { copts } from "./cors";
 import { Building, Floor } from "./model";
 import { Status } from "./app";
+import { AlreadyExistsError } from "./service";
 
 export const floorRouter = Router();
 
@@ -25,7 +26,7 @@ floorRouter.post("/:floorId", cors(copts), async (req, res) => {
     const b = await Building.findOne({ where: { id: f.buildingId } });
     const existingFloors = await Floor.findAll({ where: { buildingId: b.id, floorNo: newFloorNo } });
     if (existingFloors.length > 0) {
-        throw new Error(`Floor ${newFloorNo} already exists in this building`);
+        throw new AlreadyExistsError(`Floor ${newFloorNo} already exists in this building`);
     }
     f.floorNo = parseInt(newFloorNo, 10);
     await f.save();
