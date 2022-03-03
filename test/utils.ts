@@ -19,61 +19,29 @@ export const setup = async function () {
         unlinkSync(filename);
     }
 
-    // TODO there is probably some way to avoid all these awaits until the end. will have to look into that
+    // for later: there is probably some way to avoid all these awaits until the end. will have to look into that
     try {
         await sequelize.sync();
         const b = await Building.create({ name: "DataDyne" });
-        for (let i = 0; i < 101; i++) {
+        for (let i = 0; i < 100; i++) {
             const f = await Floor.create({
+                buildingId: b.id, // have to associate manually for now, doesnt seem to work with just the addFloor()
                 floorNo: i + 1,
             });
             await b.addFloor([f]);
         }
 
 
-        // set floors for elevators
-
-        const floors = await b.getFloors();
-
-        let e = await Elevator.create({ elevatorNo: "0" });
+        // have to associate manually for now, doesnt seem to work with just the addElevator()
+        let e = await Elevator.create({ buildingId: b.id, elevatorNo: "0" });
         await b.addElevator([e]);
-        let start = 0;
-        for (let i = 0; i < 15; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-
-        e = await Elevator.create({ elevatorNo: "1" });
+        e = await Elevator.create({ buildingId: b.id, elevatorNo: "1" });
         await b.addElevator([e]);
-        start = 15;
-        await e.addFloor(floors[0]);
-        for (let i = 0; i < 15; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-
-        e = await Elevator.create({ elevatorNo: "2" });
+        e = await Elevator.create({ buildingId: b.id, elevatorNo: "2" });
         await b.addElevator([e]);
-        start = 30;
-        await e.addFloor(floors[0]);
-        for (let i = 0; i < 16; i++) {
-            await e.addFloor(floors[start + i]);
-        }
-
-        e = await Elevator.create({ elevatorNo: "3" });
+        e = await Elevator.create({ buildingId: b.id, elevatorNo: "3" });
         await b.addElevator([e]);
-        start = 45;
-        for (let i = 0; i < 55; i++) {
-            await e.addFloor(floors[start + i]);
-        }
 
-        // print out data
-        // console.log(b.toJSON());
-
-        // const fs = await b.getFloors();
-        // fs.forEach((floor) => {
-        //     console.log(floor.toJSON());
-        // });
-        // const b3 = await Building.findOne({ where: { name: "DataDyne" } }); // XXX
-        // console.log(b3.toJSON()); // XXX
         await sequelize.sync();
     } catch (e) {
         console.error(e);
@@ -99,12 +67,19 @@ export const teardown = async () => {
 
 export const CleanupRecordKeys = {
     Dates: ["createdAt", "updatedAt"],
-    All: ["id", "createdAt", "updatedAt"]
+    DatesAndElevatorCurrentFloor: ["createdAt", "updatedAt", "currentFloorId"],
+    // currentFloorId is for elevator, will clear it if it is present.
+    All: ["id", "createdAt", "updatedAt", "currentFloorId"]
+};
+export const CleanupForceInsertKeys = {
+    ElevatorCurrentFloor: ["currentFloorId"]
 };
 
-export const cleanupRecords = (records: any, keysToClean: string[] = CleanupRecordKeys.All) => {
+export const cleanupRecords = (records: any, keysToClean: string[] = CleanupRecordKeys.All, forceInsertKeys: string[] = []) => {
     /**
      * Cleans up sequelize records, removing id and other fields by default. This allows test to be agnostic to when the data was created.
+     * 
+     * Can forcibly insert some keys too.
      */
     // lots of any's here because its meant to sanitize many things
     let inputRecords: any = records;
@@ -118,6 +93,9 @@ export const cleanupRecords = (records: any, keysToClean: string[] = CleanupReco
             if (key in record) {
                 record[key] = "";
             }
+        });
+        forceInsertKeys.forEach((key) => {
+            record[key] = "";
         });
     });
     if (returnSingle) {

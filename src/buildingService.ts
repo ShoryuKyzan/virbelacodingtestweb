@@ -46,3 +46,34 @@ export const getBuildingElevators = async (buildingName: string): Promise<Elevat
     const b = await Building.findOne({ where: { name: buildingName } });
     return await b.getElevators();
 };
+
+
+export const getElevator = async (building: string, elevatorNo: string): Promise<Elevator> => {
+    const b = (await Building.findOne({
+        where: {
+            name: building
+        }
+    }));
+    const e = (await Elevator.findAll({
+        where: {
+            buildingId: b.id,
+            elevatorNo: elevatorNo
+        }
+    }))[0];
+    return e;
+};
+
+export const getFloor = async (building: string, floorNo: number): Promise<Floor> => {
+    const b = (await Building.findOne({
+        where: {
+            name: building
+        }
+    }));
+    const f = (await Floor.findAll({
+        where: {
+            buildingId: b.id,
+            floorNo
+        }
+    }))[0];
+    return f;
+};

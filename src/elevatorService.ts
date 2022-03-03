@@ -1,3 +1,4 @@
+import { getElevator, getFloor } from "./buildingService";
 import { log } from "./logging";
 import { Building, Elevator, Floor } from "./model";
 import { AlreadyExistsError } from "./service";
@@ -33,35 +34,6 @@ export const createFloor = async (buildingName: string, floorNo: number): Promis
     return floor;
 };
 
-export const getElevator = async (building: string, elevatorNo: string): Promise<Elevator> => {
-    const b = (await Building.findOne({
-        where: {
-            name: building
-        }
-    }));
-    const e = (await Elevator.findAll({
-        where: {
-            buildingId: b.id,
-            elevatorNo: elevatorNo
-        }
-    }))[0];
-    return e;
-};
-
-export const getFloor = async (building: string, floorNo: number): Promise<Floor> => {
-    const b = (await Building.findOne({
-        where: {
-            name: building
-        }
-    }));
-    const f = (await Floor.findAll({
-        where: {
-            buildingId: b.id,
-            floorNo
-        }
-    }))[0];
-    return f;
-};
 
 export const openDoor = async (building: string, elevatorNo: string) => {
     const e = await getElevator(building, elevatorNo);
@@ -77,12 +49,12 @@ export const closeDoor = async (building: string, elevatorNo: string) => {
     log(`${building} elevator ${elevatorNo} door closed`);
 };
 
-// export const goToFloor = async (building: string, elevatorNo: string, floorNo: number) => {
-//     const e = await getElevator(building, elevatorNo);
-//     const f = await getFloor(building, floorNo);
-//     await closeDoor(building, elevatorNo);
-//     // XXX WIP e.currentFloor = f.id;
-//     e.save();
-//     log(`${building} elevator ${elevatorNo} went to ${floorNo}`);
-//     await openDoor(building, elevatorNo);
-// };
+export const goToFloor = async (building: string, elevatorNo: string, floorNo: number) => {
+    const e = await getElevator(building, elevatorNo);
+    const f = await getFloor(building, floorNo);
+    await closeDoor(building, elevatorNo);
+    e.currentFloorId = f.id;
+    e.save();
+    log(`${building} elevator ${elevatorNo} went to floor ${floorNo}`);
+    await openDoor(building, elevatorNo);
+};

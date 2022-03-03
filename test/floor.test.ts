@@ -73,7 +73,7 @@ test("update floor", async () => {
     await b.destroy();
 });
 
-test("delete elevator", async () => {
+test("delete floor", async () => {
     const f = await Floor.create({ floorNo: 1 }); // no associated building which is fine
     const oldId = f.id;
     const response = await request(app).delete(`/floor/${f.id}`);
@@ -790,12 +790,5 @@ const allFloors = [
         "buildingId": 1,
         "createdAt": "2022-03-03T04:16:59.031Z",
         "updatedAt": "2022-03-03T04:16:59.035Z"
-    },
-    {
-        "id": 101,
-        "floorNo": 101,
-        "buildingId": 1,
-        "createdAt": "2022-03-03T04:16:59.039Z",
-        "updatedAt": "2022-03-03T04:16:59.043Z"
     }
 ];

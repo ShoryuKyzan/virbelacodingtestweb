@@ -1,6 +1,5 @@
 import {
     DataTypes,
-    HasManyAddAssociationMixin,
     HasManyGetAssociationsMixin,
     Model,
     Sequelize,
@@ -53,18 +52,13 @@ export class Elevator extends Model<
 > {
     declare id: CreationOptional<number>;
     declare buildingId: CreationOptional<number>;
+    declare currentFloorId: CreationOptional<number>;
     declare status: CreationOptional<ElevatorStatus>;
     declare doorStatus: CreationOptional<DoorStatus>;
     declare elevatorNo: string;
 
-    // Since TS cannot determine model association at compile time
-    // we have to declare them here purely virtually
-    // these will not exist until `Model.init` was called.
     declare getBuilding: HasOneGetAssociationMixin<Building>;
     declare setBuilding: HasOneSetAssociationMixin<Building, number>;
-
-    declare getFloors: HasManyGetAssociationsMixin<Floor>;
-    declare addFloor: HasManyAddAssociationMixin<Floor, number>;
 
     public openDoor() {
         this.doorStatus = DoorStatus.Open;
@@ -110,6 +104,7 @@ Elevator.init(
             primaryKey: true
         },
         buildingId: DataTypes.INTEGER,
+        currentFloorId: DataTypes.INTEGER,
         status: {
             type: DataTypes.INTEGER,
             defaultValue: ElevatorStatus.Idle,
@@ -126,8 +121,6 @@ Building.hasMany(Floor);
 Building.hasMany(Elevator);
 Floor.belongsTo(Building);
 Elevator.belongsTo(Building);
-Elevator.belongsToMany(Floor, { through: "FloorElevator" });
-Floor.belongsToMany(Elevator, { through: "FloorElevator" });
 
 module.exports = {
     Building,

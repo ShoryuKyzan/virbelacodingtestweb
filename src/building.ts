@@ -4,8 +4,8 @@ import cors from "cors";
 import { copts } from "./cors";
 import { Building, Elevator, Floor } from "./model";
 import { Status } from "./app";
-import { closeDoor, createElevator, createFloor, getElevator, openDoor } from "./elevatorService";
-import { createBuilding, createBuildingElevator, createBuildingFloor, getBuildingElevators, getBuildingFloors } from "./buildingService";
+import { closeDoor, goToFloor, openDoor } from "./elevatorService";
+import { createBuilding, createBuildingElevator, createBuildingFloor, getBuildingElevators, getBuildingFloors, getElevator } from "./buildingService";
 import { AlreadyExistsError } from "./service";
 
 export const buildingRouter = Router();
@@ -89,11 +89,11 @@ buildingRouter.get("/:buildingName/elevator/:elevatorNo/closeDoor", cors(copts),
     res.send(JSON.stringify({ status: Status.Success, elevator }));
 });
 
-// buildingRouter.get("/:buildingName/elevator/:elevatorNo/gotoFloor/:floorNo", cors(copts), async (req, res) => {
-//     const building = req.params["buildingName"];
-//     const elevatorNo = req.params["elevatorNo"];
-//     const floorNo = req.params["floorNo"];
-//     await goToFloor(building, elevatorNo, floorNo);
-//     const elevator = await getElevator(building, elevatorNo);
-//     res.send(JSON.stringify({ status: Status.Success, elevator }));
-// });
+buildingRouter.get("/:buildingName/elevator/:elevatorNo/gotoFloor/:floorNo", cors(copts), async (req, res) => {
+    const building = req.params["buildingName"];
+    const elevatorNo = req.params["elevatorNo"];
+    const floorNo = parseInt(req.params["floorNo"], 10);
+    await goToFloor(building, elevatorNo, floorNo);
+    const elevator = await getElevator(building, elevatorNo);
+    res.send(JSON.stringify({ status: Status.Success, elevator }));
+});

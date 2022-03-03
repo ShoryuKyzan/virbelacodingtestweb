@@ -1,8 +1,10 @@
 import request from "supertest";
 import { app, Status } from "../src/app";
 import { Building, DoorStatus, Elevator, Floor, sequelize } from "../src/model";
-import { CleanupRecordKeys, cleanupRecords } from "./utils";
+import { CleanupForceInsertKeys, CleanupRecordKeys, cleanupRecords } from "./utils";
 import { createBuilding } from "../src/buildingService";
+import { getFloor } from "../src/buildingService";
+import { closeDoor } from "../src/elevatorService";
 
 test("get buildings", async () => {
     const response = await request(app).get("/building");
@@ -190,13 +192,14 @@ test("create building elevator", async () => {
             "buildingId": b.id,
             "status": 0,
             "doorStatus": 1,
+            "currentFloorId": "",
             "elevatorNo": "2",
             "createdAt": "",
             "updatedAt": ""
         }
     };
 
-    actualBody.elevator = cleanupRecords(actualBody.elevator);
+    actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.All, CleanupForceInsertKeys.ElevatorCurrentFloor);
 
     console.log("expected, actual:", expectedBody, actualBody);
     expect(actualBody).toStrictEqual(expectedBody);
@@ -214,15 +217,15 @@ test("get building elevators", async () => {
         "status": "success",
         "elevators":
             [
-                { "id": 1, "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "0", "createdAt": "2022-03-03T04:16:59.057Z", "updatedAt": "2022-03-03T04:16:59.061Z" },
-                { "id": 2, "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "1", "createdAt": "2022-03-03T04:16:59.154Z", "updatedAt": "2022-03-03T04:16:59.158Z" },
-                { "id": 3, "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" },
-                { "id": 4, "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "3", "createdAt": "2022-03-03T04:16:59.364Z", "updatedAt": "2022-03-03T04:16:59.368Z" }
+                { "id": 1, "buildingId": 1, "status": 0, "doorStatus": 1, "currentFloorId": "", "elevatorNo": "0", "createdAt": "2022-03-03T04:16:59.057Z", "updatedAt": "2022-03-03T04:16:59.061Z" },
+                { "id": 2, "buildingId": 1, "status": 0, "doorStatus": 1, "currentFloorId": "", "elevatorNo": "1", "createdAt": "2022-03-03T04:16:59.154Z", "updatedAt": "2022-03-03T04:16:59.158Z" },
+                { "id": 3, "buildingId": 1, "status": 0, "doorStatus": 1, "currentFloorId": "", "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" },
+                { "id": 4, "buildingId": 1, "status": 0, "doorStatus": 1, "currentFloorId": "", "elevatorNo": "3", "createdAt": "2022-03-03T04:16:59.364Z", "updatedAt": "2022-03-03T04:16:59.368Z" }
             ]
     };
-    expectedBody.elevators = cleanupRecords(actualBody.elevators, CleanupRecordKeys.Dates);
+    expectedBody.elevators = cleanupRecords(expectedBody.elevators, CleanupRecordKeys.Dates);
 
-    actualBody.elevators = cleanupRecords(actualBody.elevators, CleanupRecordKeys.Dates);
+    actualBody.elevators = cleanupRecords(actualBody.elevators, CleanupRecordKeys.DatesAndElevatorCurrentFloor, CleanupForceInsertKeys.ElevatorCurrentFloor);
     console.log("expected, actual:", expectedBody, actualBody);
     expect(actualBody).toStrictEqual(expectedBody);
 });
@@ -249,10 +252,10 @@ test("openDoor", async () => {
     const actualBody = JSON.parse(response.text);
     const expectedBody = {
         status: Status.Success,
-        elevator: cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "doorStatus": DoorStatus.Open, "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" }, CleanupRecordKeys.Dates)
+        elevator: cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "currentFloorId": "", "doorStatus": DoorStatus.Open, "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" }, CleanupRecordKeys.Dates)
     };
 
-    actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.Dates);
+    actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.DatesAndElevatorCurrentFloor, CleanupForceInsertKeys.ElevatorCurrentFloor);
     console.log("expected, actual:", expectedBody, actualBody);
     expect(actualBody).toStrictEqual(expectedBody);
     // cleanup, close again
@@ -265,12 +268,49 @@ test("closeDoor", async () => {
     const actualBody = JSON.parse(response.text);
     const expectedBody = {
         status: Status.Success,
-        elevator: cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "doorStatus": DoorStatus.Closed, "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" }, CleanupRecordKeys.Dates)
+        elevator: cleanupRecords({
+            id: 3,
+            buildingId: 1,
+            status: 0,
+            currentFloorId: "",
+            doorStatus: DoorStatus.Closed,
+            elevatorNo: "2",
+            createdAt: "2022-03-03T04:16:59.259Z",
+            updatedAt: "2022-03-03T04:17:06.611Z",
+        }, CleanupRecordKeys.DatesAndElevatorCurrentFloor)
+    };
+
+    actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.DatesAndElevatorCurrentFloor, CleanupForceInsertKeys.ElevatorCurrentFloor);
+    console.log("expected, actual:", expectedBody, actualBody);
+    expect(actualBody).toStrictEqual(expectedBody);
+});
+
+test("goToFloor", async () => {
+    const response = await request(app).get("/building/DataDyne/elevator/2/goToFloor/100");
+
+    const f = await getFloor("DataDyne", 100);
+
+    const actualBody = JSON.parse(response.text);
+    const expectedBody = {
+        status: Status.Success,
+        elevator: cleanupRecords({
+            "id": 3,
+            "buildingId": 1,
+            "status": 0,
+            "doorStatus": DoorStatus.Open,
+            "elevatorNo": "2",
+            "currentFloorId": f.id,
+            "createdAt": "2022-03-03T04:16:59.259Z",
+            "updatedAt": "2022-03-03T04:17:06.611Z"
+        }, CleanupRecordKeys.Dates)
     };
 
     actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.Dates);
     console.log("expected, actual:", expectedBody, actualBody);
     expect(actualBody).toStrictEqual(expectedBody);
+
+    // cleanup, reset door back to closed.
+    await closeDoor("DataDyne", "2");
 });
 
 const allFloors = [
