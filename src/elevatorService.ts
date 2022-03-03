@@ -77,5 +77,12 @@ export const closeDoor = async (building: string, elevatorNo: string) => {
     log(`${building} elevator ${elevatorNo} door closed`);
 };
 
-// getElevator(building, elevatorNo)
-// getFloor(building, floorNo)
+// export const goToFloor = async (building: string, elevatorNo: string, floorNo: number) => {
+//     const e = await getElevator(building, elevatorNo);
+//     const f = await getFloor(building, floorNo);
+//     await closeDoor(building, elevatorNo);
+//     // XXX WIP e.currentFloor = f.id;
+//     e.save();
+//     log(`${building} elevator ${elevatorNo} went to ${floorNo}`);
+//     await openDoor(building, elevatorNo);
+// };

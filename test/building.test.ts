@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app, Status } from "../src/app";
-import { Building, Elevator, Floor, sequelize } from "../src/model";
+import { Building, DoorStatus, Elevator, Floor, sequelize } from "../src/model";
 import { CleanupRecordKeys, cleanupRecords } from "./utils";
 import { createBuilding } from "../src/buildingService";
 
@@ -243,30 +243,35 @@ test("get building floors", async () => {
 });
 
 
+test("openDoor", async () => {
+    const response = await request(app).get("/building/DataDyne/elevator/2/openDoor");
 
+    const actualBody = JSON.parse(response.text);
+    const expectedBody = {
+        status: Status.Success,
+        elevator: cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "doorStatus": DoorStatus.Open, "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" }, CleanupRecordKeys.Dates)
+    };
 
-// test("openDoor", async () => {
-//     const response = await request(app).get("/building/DataDyne/elevator/2/openDoor");
+    actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.Dates);
+    console.log("expected, actual:", expectedBody, actualBody);
+    expect(actualBody).toStrictEqual(expectedBody);
+    // cleanup, close again
+    await request(app).get("/building/DataDyne/elevator/2/closeDoor");
+});
 
-//     const actualBody = JSON.parse(response.body);
-//     console.log("openDoor", response.body); // XXX
-//     // const expectedBody = { status: Status.Success, elevator: {} }; // TODO fill this in
-//     // expectedBody.id = actualBody.id; // id doesnt matter
+test("closeDoor", async () => {
+    const response = await request(app).get("/building/DataDyne/elevator/2/closeDoor");
 
-//     // expect(response.statusCode).toBe(200);
-//     // expect(actualBody).toStrictEqual(expectedBody);
-// });
-// test("closeDoor", async () => {
-//     const response = await request(app).get("/building/DataDyne/elevator/2/closeDoor");
+    const actualBody = JSON.parse(response.text);
+    const expectedBody = {
+        status: Status.Success,
+        elevator: cleanupRecords({ "id": 3, "buildingId": 1, "status": 0, "doorStatus": DoorStatus.Closed, "elevatorNo": "2", "createdAt": "2022-03-03T04:16:59.259Z", "updatedAt": "2022-03-03T04:17:06.611Z" }, CleanupRecordKeys.Dates)
+    };
 
-//     const actualBody = JSON.parse(response.body);
-//     console.log("closeDoor", response.body); // XXX
-//     // const expectedBody = { status: Status.Success, elevator: {} }; // TODO fill this in
-//     // expectedBody.id = actualBody.id; // id doesnt matter
-
-//     // expect(response.statusCode).toBe(200);
-//     // expect(actualBody).toStrictEqual(expectedBody);
-// });
+    actualBody.elevator = cleanupRecords(actualBody.elevator, CleanupRecordKeys.Dates);
+    console.log("expected, actual:", expectedBody, actualBody);
+    expect(actualBody).toStrictEqual(expectedBody);
+});
 
 const allFloors = [
     {
