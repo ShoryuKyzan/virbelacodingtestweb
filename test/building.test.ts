@@ -1,7 +1,8 @@
 import request from "supertest";
 import { app, Status } from "../src/app";
 import { Building, Elevator, Floor, sequelize } from "../src/model";
-import { CleanupRecordKeys, cleanupRecords, setup, teardown } from "./utils";
+import { CleanupRecordKeys, cleanupRecords } from "./utils";
+import { createBuilding } from "../src/buildingService";
 
 test("get buildings", async () => {
     const response = await request(app).get("/building");
@@ -72,7 +73,7 @@ test("get building", async () => {
 
 test("create building", async () => {
     const buildingName = "Carrington Institute";
-    const response = await request(app).post(`/building/${buildingName}`);
+    const response = await request(app).put(`/building/${buildingName}`);
     const actualBody = JSON.parse(response.text);
 
     const expectedBody = {
@@ -92,13 +93,10 @@ test("create building", async () => {
     await sequelize.sync();
 });
 
-
-
-
 test("delete building", async () => {
     // create building to delete
     const buildingName = "Carrington Institute";
-    const b = await Building.create({ name: buildingName });
+    const b = await createBuilding(buildingName);
     const e1 = await Elevator.create({ elevatorNo: "0" });
     const e2 = await Elevator.create({ elevatorNo: "1" });
     const e3 = await Elevator.create({ elevatorNo: "2" });
@@ -134,5 +132,41 @@ test("delete building", async () => {
     expect(elevators.length).toBe(0);
     const floors = await Floor.findAll({ where: { buildingId: oldBuildingId } });
     expect(floors.length).toBe(0);
+
+});
+
+test("update building", async () => {
+    // create building to delete
+    const buildingName = "Carrington Institute";
+    await Building.create({ name: buildingName });
+    sequelize.sync();
+
+    // ensure created
+    let buildings = await Building.findAll({ where: { name: buildingName } });
+    expect(buildings.length).toBe(1);
+
+    const newBuildingName = "Carrington Institute (Skedar)";
+
+    const response = await request(app).post(`/building/${buildingName}`)
+        .send({ name: newBuildingName })
+        .set("Accept", "application/json");
+    const actualBody = JSON.parse(response.text);
+
+    const expectedUpdatedBuilding = { "id": "", "name": newBuildingName, "createdAt": "", "updatedAt": "" };
+    const expectedBody = { status: Status.Success, building: expectedUpdatedBuilding };
+
+    console.log("expected, actual:", expectedBody, actualBody);
+    actualBody.building = cleanupRecords(actualBody.building);
+
+    expect(actualBody).toStrictEqual(expectedBody);
+
+    // confirm new name when looking up
+    buildings = await Building.findAll({ where: { name: newBuildingName } });
+    expect(buildings.length).toBe(1);
+
+    // cleanup
+    await buildings[0].destroy();
+    await sequelize.sync();
+
 
 });

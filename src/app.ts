@@ -16,6 +16,7 @@ export enum Status {
 
 // I know there are probably route ways of doing this... better ways etc.
 
+router.use(express.json()); // body parser
 router.use("/building", buildingRouter);
 router.use("/elevator", elevatorRouter);
 router.use("/floor", floorRouter);

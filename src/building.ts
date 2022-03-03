@@ -4,7 +4,8 @@ import cors from "cors";
 import { copts } from "./cors";
 import { Building, Elevator, Floor } from "./model";
 import { Status } from "./app";
-import { closeDoor, createBuilding, createElevator, createFloor, getElevator, openDoor } from "./elevatorService";
+import { closeDoor, createElevator, createFloor, getElevator, openDoor } from "./elevatorService";
+import { createBuilding } from "./buildingService";
 
 export const buildingRouter = Router();
 
@@ -15,13 +16,25 @@ buildingRouter.get("/", cors(copts), async (req, res) => {
     res.send(JSON.stringify({ status: Status.Success, buildings }));
 });
 
+buildingRouter.put("/:buildingName", cors(copts), async (req, res) => {
+    const building = await createBuilding(req.params["buildingName"]);
+
+    res.send(JSON.stringify({ status: Status.Success, building }));
+});
+
+
 buildingRouter.post("/:buildingName", cors(copts), async (req, res) => {
     const buildingName = req.params["buildingName"];
-    const existingBuildings = await Building.findAll({ where: { name: buildingName } });
+    const newBuildingName = req.body.name;
+
+    const existingBuildings = await Building.findAll({ where: { name: newBuildingName } });
     if (existingBuildings.length > 0) {
-        throw new Error(`Building ${buildingName} already exists`);
+        throw new Error(`Building ${newBuildingName} already exists`);
     }
-    const building = await Building.create({ name: buildingName });
+    const building = await Building.findOne({ where: { name: buildingName } });
+    building.name = newBuildingName;
+    await building.save();
+
     res.send(JSON.stringify({ status: Status.Success, building }));
 });
 

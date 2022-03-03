@@ -1,10 +1,6 @@
 import { log } from "./logging";
 import { Building, Elevator, Floor } from "./model";
 
-export const createBuilding = async (name: string): Promise<Building> => {
-    return await Building.create({ name: name });
-};
-
 export const createElevator = async (buildingName: string, elevatorNo: string): Promise<Elevator> => {
     const building = await Building.findOne({ where: { name: buildingName } });
     const conflicts = await Elevator.findAll({
