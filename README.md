@@ -30,6 +30,7 @@ PUT and POST requests require "Content-Type: application/json" header present or
   - Run `npm install`
   - Run `npm run serve`
   - Will run an API server on port 8000, and it will refresh automatically when code changes are made
+  - A test database is elevatorService.db, and this is in place in development automatically. This is created from the data in test/utils.js setup().
 
 # Summary
 
