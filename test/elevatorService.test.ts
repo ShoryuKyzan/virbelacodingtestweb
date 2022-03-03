@@ -30,6 +30,9 @@ test("openDoor", async () => {
     console.log("doorstatus open", DoorStatus.Open);
     console.log("Elevator doorstatus", e.doorStatus, e.toJSON());
     expect(e.doorStatus).toBe(DoorStatus.Open);
+
+    // set back to closed
+    await closeDoor(buildingName, elevatorNo);
 });
 
 test("closeDoor", async () => {
@@ -80,10 +83,12 @@ test("createElevator", async () => {
     const expectedElevator = cleanupRecords({ "id": "", "buildingId": 1, "status": 0, "doorStatus": 1, "elevatorNo": "4", "createdAt": "", "updatedAt": "" });
     await createElevator(buildingName, elevatorNo);
 
-    let e = await getElevator(buildingName, elevatorNo);
-    e = cleanupRecords(e.toJSON());
-    console.log("expected, actual: ", expectedElevator, e);
-    expect(e).toStrictEqual(expectedElevator);
+    const e = await getElevator(buildingName, elevatorNo);
+    const elevatorObj = cleanupRecords(e.toJSON());
+    console.log("expected, actual: ", expectedElevator, elevatorObj);
+    expect(elevatorObj).toStrictEqual(expectedElevator);
+    // delete elevator after
+    await e.destroy();
 });
 
 
@@ -94,10 +99,12 @@ test("createFloor", async () => {
     const expectedFloor = cleanupRecords({ "id": "", "floorNo": 102, "buildingId": 1, "createdAt": "", "updatedAt": "" });
     await createFloor(buildingName, floorNo);
 
-    let f = await getFloor(buildingName, floorNo);
-    f = cleanupRecords(f.toJSON());
-    console.log("expected, actual: ", expectedFloor, f);
-    expect(f).toStrictEqual(expectedFloor);
+    const f = await getFloor(buildingName, floorNo);
+    const floorObj = cleanupRecords(f.toJSON());
+    console.log("expected, actual: ", expectedFloor, floorObj);
+    expect(floorObj).toStrictEqual(expectedFloor);
+    // delete after
+    await f.destroy();
 });
 
 
