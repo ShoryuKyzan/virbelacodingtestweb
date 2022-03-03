@@ -11,4 +11,4 @@ COPY ./tsconfig.json /code/
 RUN npm install
 RUN npm run build
 
-CMD ["bash", "-c", "node dist/main.js"]
+CMD ["bash", "-c", "node dist/server.js"]

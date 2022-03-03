@@ -1,11 +1,11 @@
 # Intro
 
-XXX TODO
-I generated this project based on a starter template for node/typescript to speed things up: https://github.com/microsoft/TypeScript-Node-Starter (mainly for proper typescript setup), and I added the dockerization.
-
+Node.js express API + database + automated tests for a coding test.
 # Features
 
-XXX TODO
+Elevators, buildings, floors have full CRUD interface. Elevators and floors must be created on their associated buildings, though.
+
+Fully automated testing.
 
 # How to run
 
@@ -29,9 +29,7 @@ Set up a docker environment.
   - Run `npm run serve`
   - Will run an API server on port 8000, and it will refresh automatically when code changes are made
 
-# Changelog
-
-TODO
+# Summary
 
 1. How can your implementation be optimized?
 
