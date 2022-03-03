@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../src/app";
-import { cleanupRecords, setup, teardown } from "./utils";
+import { CleanupRecordKeys, cleanupRecords, setup, teardown } from "./utils";
 
 test("get buildings", async () => {
     const response = await request(app).get("/building");
@@ -15,7 +15,6 @@ test("get buildings", async () => {
 
     actualBody.buildings = cleanupRecords(actualBody.buildings);
     console.log("buildings", actualBody.buildings); // XXX
-    expect(response.statusCode).toBe(200);
     expect(actualBody).toStrictEqual(expectedBody);
 });
 
@@ -26,12 +25,11 @@ test("get building", async () => {
     // clened
     const expectedBody = {
         "status": "success",
-        "building": { "id": "", "name": "DataDyne", "createdAt": "", "updatedAt": "" }
+        "building": { "id": 1, "name": "DataDyne", "createdAt": "", "updatedAt": "" }
     };
 
-    actualBody.building = cleanupRecords(actualBody.building);
+    actualBody.building = cleanupRecords(actualBody.building, CleanupRecordKeys.Dates);
     console.log("building", actualBody.building); // XXX
-    expect(response.statusCode).toBe(200);
     expect(actualBody).toStrictEqual(expectedBody);
 });
 // test("get building elevators", async () => {

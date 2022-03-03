@@ -16,7 +16,7 @@ export enum Status {
 
 // I know there are probably route ways of doing this... better ways etc.
 
-// router.use("/building", buildingRouter);
+router.use("/building", buildingRouter);
 router.use("/elevator", elevatorRouter);
 router.use("/floor", floorRouter);
 router.use((err: Error, req: Request, res: Response, next: NextFunction) => {

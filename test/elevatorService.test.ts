@@ -1,5 +1,5 @@
 import { openDoor, closeDoor, getElevator, createElevator, createFloor, getFloor } from "../src/elevatorService";
-import { DoorStatus } from "../src/model";
+import { DoorStatus, sequelize } from "../src/model";
 import { CleanupRecordKeys, cleanupRecords } from "./utils";
 
 
@@ -97,6 +97,7 @@ test("createElevator", async () => {
     expect(elevatorObj).toStrictEqual(expectedElevator);
     // delete elevator after
     await e.destroy();
+    await sequelize.sync();
 });
 
 
@@ -113,6 +114,7 @@ test("createFloor", async () => {
     expect(floorObj).toStrictEqual(expectedFloor);
     // delete after
     await f.destroy();
+    await sequelize.sync();
 });
 
 
